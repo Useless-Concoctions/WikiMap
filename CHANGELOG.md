@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2026-04-08
+
+### Added
+- **Intelligent Emoji Markers**: Replaced generic "W" pins with category-aware icons. Articles now show emojis based on their classification (e.g., 🌳 for Nature, 🎓 for Education, 🏛️ for History), making the map instantly scannable.
+- **Premium Satin Theme**: Completely overhauled the design system with a "Satin-Zinc" dark theme, featuring high-fidelity glassmorphism (v2.0) and neon-blue accents.
+- **Micro-Animations**: Added hover-scale effects to all markers, a pulsing ring for selected articles, and a swipe-in "shimmer" effect for the primary action buttons.
+- **CartoDB Dark Matter**: Switched base provider to optimized dark-theme tiles for improved contrast and a futuristic aesthetic.
+- **Persistent Category Caching**: Implemented a global module-level cache for article categories, drastically reducing redundant network requests and preventing flickering when pins move on/off screen.
+- **Unified Loading State**: Added a synchronized spinner in the search bar that tracks article discovery, category fetching, and text searches simultaneously.
+- **Article Accumulation**: The map now merges new results with previous ones as you pan, instead of clearing the state. This creates a much smoother exploration experience.
+
+### Changed
+- **Onboarding UX**: Redesigned the location permission screen into a high-impact arrival experience with radial glow effects and polished typography.
+- **Search UI**: Updated the search bar with responsive focus states and an integrated glassmorphic container.
+- **Latency Optimization**: Reduced search debounce from 500ms to 300ms for snappier feedback.
+- **Memory Management**: Enforced a memory cap of 1000 articles with deduplication logic to maintain performance over long sessions.
+- **Marker Memoization**: Optimized map rendering by memoizing individual marker components, preventing heavy React reconciliations during viewport movements.
 ## [0.5.0] - 2026-03-14
 
 ### Added

@@ -26,4 +26,4 @@ Wikipedia has articles about nearly every place on earth, but there's no good wa
 
 - [Changelog](./CHANGELOG.md)
 
-Created by [Ryan Hanna](https://github.com/ryanphanna)
+Created by [Ryan Hanna](https://github.com/ryanphanna) | [ryanisnota.pro](https://ryanisnota.pro)

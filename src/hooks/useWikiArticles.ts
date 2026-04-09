@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { MapBounds, WikiGeoResult } from '@/types'
 import { fetchArticlesInBounds } from '@/lib/wikipedia'
 
-const DEBOUNCE_MS = 500
+const DEBOUNCE_MS = 300
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours — skip re-fetch if data is fresh
 const CACHE_MAX_ENTRIES = 50
+const MAX_ARTICLES_IN_MEMORY = 1000
 const GRID_SIZE = 0.05 // degrees — snap viewport to this grid so nearby views share cache entries
 
 interface CacheEntry {
@@ -92,6 +93,20 @@ export function useWikiArticles(bounds: MapBounds | null, zoom: number) {
   const [error, setError] = useState<string | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  const mergeArticles = useCallback((newArticles: WikiGeoResult[]) => {
+    setArticles((prev) => {
+      const combined = [...newArticles, ...prev]
+      const seen = new Set<number>()
+      const unique = combined.filter((a) => {
+        if (seen.has(a.pageid)) return false
+        seen.add(a.pageid)
+        return true
+      })
+      // Keep only the most recent set of articles within memory limit
+      return unique.slice(0, MAX_ARTICLES_IN_MEMORY)
+    })
+  }, [])
+
   useEffect(() => {
     if (!bounds) return
 
@@ -100,7 +115,7 @@ export function useWikiArticles(bounds: MapBounds | null, zoom: number) {
 
     // Always show cached data immediately so the map isn't blank
     if (cached) {
-      setArticles(cached.articles)
+      mergeArticles(cached.articles)
 
       // If the cache is still fresh, skip the network fetch entirely
       if (Date.now() - cached.cachedAt < CACHE_TTL_MS) return
@@ -112,12 +127,11 @@ export function useWikiArticles(bounds: MapBounds | null, zoom: number) {
       setError(null)
       try {
         const results = await fetchSpread(bounds, zoom)
-        setArticles(results)
+        mergeArticles(results)
         writeCache(key, results)
       } catch (e) {
         console.error('Wiki fetch error:', e)
         setError(e instanceof Error ? e.message : 'Failed to fetch articles')
-        // Keep existing articles on error
       } finally {
         setLoading(false)
       }
@@ -126,7 +140,7 @@ export function useWikiArticles(bounds: MapBounds | null, zoom: number) {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
-  }, [bounds?.north, bounds?.south, bounds?.east, bounds?.west, zoom])
+  }, [bounds?.north, bounds?.south, bounds?.east, bounds?.west, zoom, mergeArticles])
 
   return { articles, loading, error }
 }

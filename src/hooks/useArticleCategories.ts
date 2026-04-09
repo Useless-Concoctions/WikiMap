@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { WikiGeoResult } from '@/types'
 import { fetchCategoriesForPages } from '@/lib/wikipedia'
+import { EMOJI_FILTERS, articleMatchesFilter } from '@/lib/emojiFilters'
 
 const MAX_CATEGORIES_SHOWN = 5
 
@@ -95,46 +96,53 @@ const DUPLICATE_THRESHOLD = 0.6
 
 type CacheEntry = { categories: Map<number, string[]>; lengths: Map<number, number> }
 
+// Persistent cache outside the hook to survive re-renders and unmounts
+const globalCategoryCache = new Map<number, string[]>()
+const globalLengthCache = new Map<number, number>()
+
 export function useArticleCategories(articles: WikiGeoResult[]) {
-  const [categoriesByPageId, setCategoriesByPageId] = useState<Map<number, string[]>>(new Map())
-  const [lengthByPageId, setLengthByPageId] = useState<Map<number, number>>(new Map())
+  const [categoriesByPageId, setCategoriesByPageId] = useState<Map<number, string[]>>(new Map(globalCategoryCache))
+  const [lengthByPageId, setLengthByPageId] = useState<Map<number, number>>(new Map(globalLengthCache))
   const [loading, setLoading] = useState(false)
-  const cacheRef = useRef<Map<string, CacheEntry>>(new Map())
 
   useEffect(() => {
-    if (articles.length === 0) {
-      setCategoriesByPageId(new Map())
-      setLengthByPageId(new Map())
-      return
-    }
+    if (articles.length === 0) return
 
-    const key = [...articles.map((a) => a.pageid)].sort((a, b) => a - b).join(',')
-    const cached = cacheRef.current.get(key)
-    if (cached) {
-      setCategoriesByPageId(cached.categories)
-      setLengthByPageId(cached.lengths)
+    // Find page IDs we don't have categories for yet
+    const missingIds = articles
+      .map((a) => a.pageid)
+      .filter((id) => !globalCategoryCache.has(id))
+
+    if (missingIds.length === 0) {
+      // All articles already in cache, just ensure state is synced
+      setCategoriesByPageId(new Map(globalCategoryCache))
+      setLengthByPageId(new Map(globalLengthCache))
       return
     }
 
     let cancelled = false
     setLoading(true)
-    fetchCategoriesForPages(articles.map((a) => a.pageid))
+    
+    // Fetch only the missing IDs
+    fetchCategoriesForPages(missingIds)
       .then(({ categories, lengths }) => {
         if (!cancelled) {
-          cacheRef.current.set(key, { categories, lengths })
-          setCategoriesByPageId(categories)
-          setLengthByPageId(lengths)
+          // Update global cache
+          categories.forEach((cats, id) => globalCategoryCache.set(id, cats))
+          lengths.forEach((len, id) => globalLengthCache.set(id, len))
+          
+          // Update local state with the full cache
+          setCategoriesByPageId(new Map(globalCategoryCache))
+          setLengthByPageId(new Map(globalLengthCache))
         }
       })
-      .catch(() => {
-        if (!cancelled) {
-          setCategoriesByPageId(new Map())
-          setLengthByPageId(new Map())
-        }
+      .catch((err) => {
+        console.error('Failed to fetch categories:', err)
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
       })
+
     return () => {
       cancelled = true
     }
@@ -166,5 +174,12 @@ export function useArticleCategories(articles: WikiGeoResult[]) {
     }
   }
 
-  return { categoriesByPageId, lengthByPageId, uniqueCategories, loading }
+  // derive emojis for each article based on its categories
+  const emojiByPageId = new Map<number, string>()
+  categoriesByPageId.forEach((cats, id) => {
+    const match = EMOJI_FILTERS.find((f) => articleMatchesFilter(cats, f))
+    if (match) emojiByPageId.set(id, match.emoji)
+  })
+
+  return { categoriesByPageId, lengthByPageId, uniqueCategories, emojiByPageId, loading }
 }
