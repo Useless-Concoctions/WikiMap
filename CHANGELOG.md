@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+- **Security**: Resolved multiple high-severity vulnerabilities by upgrading `next`, `flatted`, `picomatch`, and `brace-expansion`.
+
 ## [0.6.0] - 2026-04-08
 
 ### Added
