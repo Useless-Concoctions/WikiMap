@@ -24,6 +24,7 @@ All notable changes to this project will be documented in this file.
 - **Latency Optimization**: Reduced search debounce from 500ms to 300ms for snappier feedback.
 - **Memory Management**: Enforced a memory cap of 1000 articles with deduplication logic to maintain performance over long sessions.
 - **Marker Memoization**: Optimized map rendering by memoizing individual marker components, preventing heavy React reconciliations during viewport movements.
+
 ## [0.5.0] - 2026-03-14
 
 ### Added
