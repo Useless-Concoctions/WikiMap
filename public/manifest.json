@@ -1,6 +1,6 @@
 {
-  "name": "Wiki Map",
-  "short_name": "Wiki Map",
+  "name": "WikiMap",
+  "short_name": "WikiMap",
   "description": "Walk around and discover nearby Wikipedia articles",
   "start_url": "/",
   "display": "standalone",

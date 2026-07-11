@@ -1,10 +1,10 @@
-# Wiki Map
+# WikiMap
 
 An interactive map that surfaces nearby Wikipedia articles as explorable pins — powered by geolocation and the Wikipedia API.
 
 ## Problem
 
-Wikipedia has articles about nearly every place on earth, but there's no good way to discover them spatially. Wiki Map turns your surroundings into an explorable layer of knowledge — walk through a neighbourhood and see what stories are attached to it.
+Wikipedia has articles about nearly every place on earth, but there's no good way to discover them spatially. WikiMap turns your surroundings into an explorable layer of knowledge — walk through a neighbourhood and see what stories are attached to it.
 
 ## Features
 

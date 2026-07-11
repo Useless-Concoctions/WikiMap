@@ -2,13 +2,13 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Wiki Map',
+  title: 'WikiMap',
   description: 'Walk around and discover nearby Wikipedia articles',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Wiki Map',
+    title: 'WikiMap',
   },
 }
 

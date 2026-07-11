@@ -110,7 +110,7 @@ All notable changes to this project will be documented in this file.
 ## [0.1.0] - 2026-03-13
 
 ### Added
-- Initial release of Wiki Map.
+- Initial release of WikiMap.
 - Basic map functionality with Wikipedia geosearch integration.
 - Radius control (500m, 1km, 2km).
 - Basic article preview panel.
