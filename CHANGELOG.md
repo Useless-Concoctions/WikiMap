@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+- **Security**: Updated Next.js and transitive dependencies to clear all known npm vulnerabilities.
+
 ## [0.6.1] - 2026-05-12
 
 ### Fixed
