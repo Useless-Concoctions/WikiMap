@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - **Security**: Updated Next.js and transitive dependencies to clear all known npm vulnerabilities.
+- **Security**: Patched `@humanfs/node` (moderate, GHSA-p498-v437-472g) via `npm audit fix`.
 
 ## [0.6.1] - 2026-05-12
 
