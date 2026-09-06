@@ -18,6 +18,14 @@ export interface WikiGeoResult {
   lat: number
   lon: number
   dist: number
+  length?: number
+  categories?: string[]
+  extract?: string
+  thumbnail?: {
+    source: string
+    width: number
+    height: number
+  }
 }
 
 export interface WikiSummary {

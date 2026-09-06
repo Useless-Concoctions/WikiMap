@@ -10,32 +10,49 @@ interface Props {
 }
 
 export default function ArticlePanel({ article, onClose }: Props) {
-  const [summary, setSummary] = useState<WikiSummary | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [fetched, setFetched] = useState<{
+    title: string
+    summary: WikiSummary | null
+    error: string | null
+  } | null>(null)
+
+  const articleTitle = article?.title
+  const loading = Boolean(articleTitle && (!fetched || fetched.title !== articleTitle))
+  const summary = fetched && fetched.title === articleTitle ? fetched.summary : null
+  const error = fetched && fetched.title === articleTitle ? fetched.error : null
 
   useEffect(() => {
-    if (!article) {
-      setSummary(null)
-      return
-    }
-    console.log('ArticlePanel received article:', article.title)
-    setLoading(true)
-    setError(null)
-    setSummary(null)
-    fetchArticleSummary(article.title)
+    if (!articleTitle) return
+
+    let cancelled = false
+
+    fetchArticleSummary(articleTitle)
       .then((data) => {
-        console.log('Article summary loaded:', data.title)
-        setSummary(data)
+        if (!cancelled) {
+          setFetched({ title: articleTitle, summary: data, error: null })
+        }
       })
       .catch((e) => {
-        console.error('Article summary fetch error:', e)
-        setError(e.message)
+        if (!cancelled) {
+          setFetched({
+            title: articleTitle,
+            summary: null,
+            error: e instanceof Error ? e.message : 'Article summary failed',
+          })
+        }
       })
-      .finally(() => setLoading(false))
-  }, [article])
+
+    return () => {
+      cancelled = true
+    }
+  }, [articleTitle])
 
   const isOpen = !!article
+  const activeThumbnail = summary?.thumbnail?.source ?? article?.thumbnail?.source
+  const activeExtract = summary?.extract ?? article?.extract
+  const articleUrl =
+    summary?.content_urls.desktop.page ??
+    (article ? `https://en.wikipedia.org/wiki/${encodeURIComponent(article.title.replace(/ /g, '_'))}` : '#')
 
   return (
     <div
@@ -45,9 +62,9 @@ export default function ArticlePanel({ article, onClose }: Props) {
     >
       {/* Header Image or Placeholder */}
       <div className="relative h-48 bg-zinc-900 shrink-0 group overflow-hidden">
-        {summary?.thumbnail ? (
+        {activeThumbnail ? (
           <img
-            src={summary.thumbnail.source}
+            src={activeThumbnail}
             alt={article?.title}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
@@ -79,29 +96,29 @@ export default function ArticlePanel({ article, onClose }: Props) {
           </h2>
         </div>
 
-        {loading ? (
+        {loading && !activeExtract ? (
           <div className="space-y-4 animate-pulse">
             <div className="h-3 bg-white/5 rounded w-full" />
             <div className="h-3 bg-white/5 rounded w-full" />
             <div className="h-3 bg-white/5 rounded w-5/6" />
             <div className="h-3 bg-white/5 rounded w-4/6" />
           </div>
-        ) : error ? (
+        ) : error && !activeExtract ? (
           <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl text-xs font-medium">
             Wikipedia detail service unavailable.
           </div>
         ) : (
-          summary && (
+          activeExtract && (
             <>
               <div className="relative">
                 <p className="text-zinc-400 leading-relaxed text-[14px] font-medium">
-                  {summary.extract}
+                  {activeExtract}
                 </p>
               </div>
 
               <div className="pt-4">
                 <a
-                  href={summary.content_urls.desktop.page}
+                  href={articleUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group relative flex items-center justify-center gap-2 w-full bg-blue-600/90 text-white font-bold py-3.5 px-6 rounded-2xl hover:bg-blue-600 transition-all active:scale-[0.98] shadow-[0_8px_20px_-4px_rgba(59,130,246,0.5)] border border-blue-400/30 overflow-hidden"

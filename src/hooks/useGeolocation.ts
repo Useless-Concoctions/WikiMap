@@ -19,14 +19,22 @@ const MOVE_THRESHOLD_METERS = 100
 
 export function useGeolocation() {
   const [coords, setCoords] = useState<Coords | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(() => {
+    if (typeof window !== 'undefined' && !navigator.geolocation) {
+      return 'Geolocation is not supported by your browser.'
+    }
+    return null
+  })
+  const [loading, setLoading] = useState<boolean>(() => {
+    if (typeof window !== 'undefined' && !navigator.geolocation) {
+      return false
+    }
+    return true
+  })
   const lastCoords = useRef<Coords | null>(null)
 
   useEffect(() => {
     if (!navigator.geolocation) {
-      setError('Geolocation is not supported by your browser.')
-      setLoading(false)
       return
     }
 

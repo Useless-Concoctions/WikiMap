@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { WikiGeoResult } from '@/types'
 import { fetchCategoriesForPages } from '@/lib/wikipedia'
 import { EMOJI_FILTERS, articleMatchesFilter } from '@/lib/emojiFilters'
@@ -94,59 +94,71 @@ function jaccardSimilarity(a: Set<string>, b: Set<string>): number {
 /** Two categories are considered duplicates if 60%+ of their meaningful words overlap. */
 const DUPLICATE_THRESHOLD = 0.6
 
-type CacheEntry = { categories: Map<number, string[]>; lengths: Map<number, number> }
-
 // Persistent cache outside the hook to survive re-renders and unmounts
 const globalCategoryCache = new Map<number, string[]>()
 const globalLengthCache = new Map<number, number>()
 
 export function useArticleCategories(articles: WikiGeoResult[]) {
-  const [categoriesByPageId, setCategoriesByPageId] = useState<Map<number, string[]>>(new Map(globalCategoryCache))
-  const [lengthByPageId, setLengthByPageId] = useState<Map<number, number>>(new Map(globalLengthCache))
-  const [loading, setLoading] = useState(false)
+  const [fetchedCount, setFetchedCount] = useState(0)
+
+  // Ingest articles that arrived with categories/length from the unified endpoint
+  for (const a of articles) {
+    if (a.categories && a.categories.length > 0 && !globalCategoryCache.has(a.pageid)) {
+      globalCategoryCache.set(a.pageid, a.categories)
+    }
+    if (typeof a.length === 'number' && !globalLengthCache.has(a.pageid)) {
+      globalLengthCache.set(a.pageid, a.length)
+    }
+  }
+
+  const missingIds = useMemo(
+    () => articles.filter((a) => !globalCategoryCache.has(a.pageid)).map((a) => a.pageid),
+    [articles]
+  )
+
+  const loading = missingIds.length > 0
 
   useEffect(() => {
-    if (articles.length === 0) return
-
-    // Find page IDs we don't have categories for yet
-    const missingIds = articles
-      .map((a) => a.pageid)
-      .filter((id) => !globalCategoryCache.has(id))
-
-    if (missingIds.length === 0) {
-      // All articles already in cache, just ensure state is synced
-      setCategoriesByPageId(new Map(globalCategoryCache))
-      setLengthByPageId(new Map(globalLengthCache))
-      return
-    }
+    if (missingIds.length === 0) return
 
     let cancelled = false
-    setLoading(true)
-    
-    // Fetch only the missing IDs
+
     fetchCategoriesForPages(missingIds)
       .then(({ categories, lengths }) => {
         if (!cancelled) {
-          // Update global cache
           categories.forEach((cats, id) => globalCategoryCache.set(id, cats))
           lengths.forEach((len, id) => globalLengthCache.set(id, len))
-          
-          // Update local state with the full cache
-          setCategoriesByPageId(new Map(globalCategoryCache))
-          setLengthByPageId(new Map(globalLengthCache))
+          setFetchedCount((c) => c + 1)
         }
       })
       .catch((err) => {
         console.error('Failed to fetch categories:', err)
       })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
 
     return () => {
       cancelled = true
     }
-  }, [articles])
+  }, [missingIds])
+
+  const categoriesByPageId = useMemo(() => {
+    void fetchedCount
+    const map = new Map<number, string[]>()
+    for (const a of articles) {
+      const cats = globalCategoryCache.get(a.pageid) ?? a.categories
+      if (cats) map.set(a.pageid, cats)
+    }
+    return map
+  }, [articles, fetchedCount])
+
+  const lengthByPageId = useMemo(() => {
+    void fetchedCount
+    const map = new Map<number, number>()
+    for (const a of articles) {
+      const len = globalLengthCache.get(a.pageid) ?? a.length
+      if (typeof len === 'number') map.set(a.pageid, len)
+    }
+    return map
+  }, [articles, fetchedCount])
 
   const categoryCounts = new Map<string, number>()
   categoriesByPageId.forEach((cats) => {

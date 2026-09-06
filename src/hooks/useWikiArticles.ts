@@ -24,7 +24,7 @@ function snap(n: number): string {
   return (Math.round(n / GRID_SIZE) * GRID_SIZE).toFixed(2)
 }
 
-const CACHE_VERSION = 'v6'
+const CACHE_VERSION = 'v7'
 
 function boundsKey(b: MapBounds): string {
   return `wiki_cache_${CACHE_VERSION}_${snap(b.south)}|${snap(b.west)}|${snap(b.north)}|${snap(b.east)}`
@@ -107,10 +107,23 @@ export function useWikiArticles(bounds: MapBounds | null, zoom: number) {
     })
   }, [])
 
-  useEffect(() => {
-    if (!bounds) return
+  const north = bounds?.north
+  const south = bounds?.south
+  const east = bounds?.east
+  const west = bounds?.west
 
-    const key = boundsKey(bounds)
+  useEffect(() => {
+    if (
+      north === undefined ||
+      south === undefined ||
+      east === undefined ||
+      west === undefined
+    ) {
+      return
+    }
+
+    const currentBounds: MapBounds = { north, south, east, west }
+    const key = boundsKey(currentBounds)
     const cached = readCache(key)
 
     // Always show cached data immediately so the map isn't blank
@@ -126,7 +139,7 @@ export function useWikiArticles(bounds: MapBounds | null, zoom: number) {
       setLoading(true)
       setError(null)
       try {
-        const results = await fetchSpread(bounds, zoom)
+        const results = await fetchSpread(currentBounds, zoom)
         mergeArticles(results)
         writeCache(key, results)
       } catch (e) {
@@ -140,7 +153,7 @@ export function useWikiArticles(bounds: MapBounds | null, zoom: number) {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
-  }, [bounds?.north, bounds?.south, bounds?.east, bounds?.west, zoom, mergeArticles])
+  }, [north, south, east, west, zoom, mergeArticles])
 
   return { articles, loading, error }
 }
