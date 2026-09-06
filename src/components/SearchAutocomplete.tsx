@@ -114,18 +114,18 @@ export default function SearchAutocomplete({ onSelectArticle, isBusy = false }: 
   }
 
   return (
-    <div ref={containerRef} className="relative shrink-0 w-[320px] pointer-events-auto">
-      <div className="flex items-center glass rounded-full overflow-hidden h-11 w-full transition-all duration-300 focus-within:ring-2 focus-within:ring-blue-500/50">
-        <div className="px-5 h-full flex items-center gap-2 border-r border-white/5 bg-blue-600/20 text-blue-400 shrink-0">
+    <div ref={containerRef} className="relative shrink-0 w-[240px] sm:w-[270px] pointer-events-auto">
+      <div className="flex items-center glass rounded-full overflow-hidden h-8 w-full transition-all duration-300 focus-within:ring-2 focus-within:ring-blue-500/50">
+        <div className="px-3 h-full flex items-center gap-1.5 border-r border-white/5 bg-blue-600/20 text-blue-400 shrink-0">
           {isSearching || isBusy ? (
-            <div className="w-4 h-4 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin" />
+            <div className="w-3.5 h-3.5 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin" />
           ) : (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="opacity-80">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" className="opacity-80">
               <path d="M12.09 4.41l-.11.23-.12-.23c-2.43-4.86-9.15-4.86-11.58 0-.28.56.09 1.25.71 1.25h1.22c.28 0 .54-.15.68-.39.54-1.09 1.56-2.12 3.09-2.12 2.37 0 4.14 2 4.14 4.5 0 .28-.22.5-.5.5h-1c-.28 0-.5.22-.5.5s.22.5.5.5h1c.28 0 .5.22.5.5v11.5c0 .28.22.5.5.5s.5-.22.5-.5V10.5c0-.28.22-.5.5-.5h1c.28 0 .5-.22.5-.5s-.22-.5-.5-.5h-1c-.28 0-.5-.22-.5-.5 0-2.5 1.77-4.5 4.14-4.5 1.53 0 2.55 1.03 3.09 2.12.14.24.4.39.68.39h1.22c.62 0 .99-.69.71-1.25-2.43-4.86-9.15-4.86-11.58 0z" />
             </svg>
           )}
         </div>
-        <div className="flex items-center px-4 flex-1 h-full">
+        <div className="flex items-center px-2.5 flex-1 h-full">
           <input
             ref={inputRef}
             type="text"
@@ -136,16 +136,16 @@ export default function SearchAutocomplete({ onSelectArticle, isBusy = false }: 
               if (suggestions.length > 0) setIsOpen(true)
             }}
             onKeyDown={handleKeyDown}
-            className="w-full h-full text-zinc-100 font-medium text-sm bg-transparent border-none focus:ring-0 placeholder:text-zinc-500 outline-none"
+            className="w-full h-full text-zinc-100 font-normal text-xs bg-transparent border-none focus:ring-0 placeholder:text-zinc-500 outline-none"
           />
           {query && (
             <button
               type="button"
               onClick={handleClear}
-              className="p-1 hover:bg-white/10 rounded-full transition-colors text-zinc-400 hover:text-zinc-200"
+              className="p-0.5 hover:bg-white/10 rounded-full transition-colors text-zinc-400 hover:text-zinc-200"
               aria-label="Clear search"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 6L6 18M6 6l12 12" />
               </svg>
             </button>
@@ -154,7 +154,7 @@ export default function SearchAutocomplete({ onSelectArticle, isBusy = false }: 
       </div>
 
       {isOpen && suggestions.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 glass rounded-2xl overflow-hidden shadow-2xl border border-white/10 max-h-[360px] overflow-y-auto no-scrollbar z-[1050] divide-y divide-white/5 animate-in fade-in-50 slide-in-from-top-1 duration-200">
+        <div className="absolute top-full left-0 right-0 mt-1.5 glass rounded-xl overflow-hidden shadow-2xl border border-white/10 max-h-[320px] overflow-y-auto no-scrollbar z-[1050] divide-y divide-white/5 animate-in fade-in-50 slide-in-from-top-1 duration-200">
           {suggestions.map((item, idx) => {
             const isHighlighted = idx === activeIndex
             return (
@@ -163,7 +163,7 @@ export default function SearchAutocomplete({ onSelectArticle, isBusy = false }: 
                 type="button"
                 onClick={() => handleSelect(item)}
                 onMouseEnter={() => setActiveIndex(idx)}
-                className={`w-full text-left p-3 flex items-center gap-3 transition-colors ${
+                className={`w-full text-left p-2.5 flex items-center gap-2.5 transition-colors ${
                   isHighlighted ? 'bg-blue-600/30 text-white' : 'hover:bg-white/5 text-zinc-200'
                 }`}
               >
@@ -171,19 +171,19 @@ export default function SearchAutocomplete({ onSelectArticle, isBusy = false }: 
                   <img
                     src={item.thumbnail.source}
                     alt=""
-                    className="w-10 h-10 rounded-lg object-cover shrink-0 bg-zinc-800 border border-white/10"
+                    className="w-8 h-8 rounded-md object-cover shrink-0 bg-zinc-800 border border-white/10"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-zinc-400">
-                    <span className="text-base">📍</span>
+                  <div className="w-8 h-8 rounded-md bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-zinc-400">
+                    <span className="text-sm">📍</span>
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold truncate text-white leading-snug">
+                  <div className="text-xs font-semibold truncate text-white leading-tight">
                     {item.title}
                   </div>
                   {item.extract && (
-                    <div className="text-xs text-zinc-400 truncate mt-0.5">
+                    <div className="text-[11px] text-zinc-400 truncate mt-0.5">
                       {item.extract}
                     </div>
                   )}

@@ -9,6 +9,10 @@ All notable changes to this project will be documented in this file.
 - **Live Search Autocomplete**: Added a debounced suggestion dropdown with article thumbnails and keyboard navigation that keeps the map stationary while typing until a result is explicitly chosen.
 - **Unified Server API Layer**: Moved Wikipedia queries behind `/api/wiki` route handlers with compliant Wikimedia User-Agent headers, edge caching, and generator-based batching that bundles coordinates, categories, thumbnails, and extracts into a single request.
 
+### Changed
+- **Top Bar UI Scaling**: Reduced search, surprise, and category pills by ~25% with normal letter casing instead of all-caps.
+- **Onboarding Copy**: Changed fallback permission button from "Explore Toronto" to "Start Exploring".
+
 ### Fixed
 - **Carto Basemap Tiles**: Routed tile requests through `/api/carto-tiles` proxy with API key injection and edge caching to remove the "API Key Required" watermark.
 - **Security**: Updated Next.js and transitive dependencies to clear all known npm vulnerabilities.

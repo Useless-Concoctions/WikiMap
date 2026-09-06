@@ -18,14 +18,14 @@ export default function CategoryFilter({ selected, onChange }: Props) {
             type="button"
             onClick={() => onChange(isSelected ? null : filter.id)}
             title={filter.label}
-            className={`shrink-0 h-10 px-4 flex items-center gap-2 rounded-full text-sm font-medium transition-all glass pointer-events-auto whitespace-nowrap active:scale-95 ${
+            className={`shrink-0 h-8 px-3 flex items-center gap-1.5 rounded-full text-xs font-medium transition-all glass pointer-events-auto whitespace-nowrap active:scale-95 ${
               isSelected
-                ? 'bg-blue-600/40 text-blue-100 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.3)]'
+                ? 'bg-blue-600/40 text-blue-100 border-blue-500/50 shadow-[0_0_12px_rgba(59,130,246,0.3)]'
                 : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/5 border-white/5'
             }`}
           >
-            <span className="text-base leading-none drop-shadow-sm">{filter.emoji}</span>
-            <span className="text-xs font-semibold tracking-tight uppercase">{filter.label}</span>
+            <span className="text-sm leading-none drop-shadow-sm">{filter.emoji}</span>
+            <span className="text-xs font-medium">{filter.label}</span>
           </button>
         )
       })}

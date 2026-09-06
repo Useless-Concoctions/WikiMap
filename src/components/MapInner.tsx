@@ -309,7 +309,7 @@ export default function MapInner() {
               className="group relative w-full bg-blue-600 text-white text-sm font-bold py-4.5 rounded-2xl hover:bg-blue-500 transition-all active:scale-[0.98] shadow-2xl shadow-blue-900/20 overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-              Explore Toronto
+              Start Exploring
             </button>
             
             {geoError && (
@@ -359,7 +359,7 @@ export default function MapInner() {
         <MapController coords={coords} />
       </MapContainer>
 
-      <div className="absolute top-6 left-6 right-6 z-[1010] flex items-center gap-3 pointer-events-none transition-all duration-500">
+      <div className="absolute top-5 left-5 right-5 z-[1010] flex items-center gap-2 pointer-events-none transition-all duration-500">
         <SearchAutocomplete
           onSelectArticle={setSelectedArticle}
           isBusy={wikiLoading || catsLoading}
@@ -369,18 +369,18 @@ export default function MapInner() {
           type="button"
           onClick={handleSurpriseMe}
           disabled={isSurprising}
-          className="h-11 px-4 flex items-center gap-2 glass rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all pointer-events-auto shrink-0 active:scale-95 disabled:opacity-50 text-xs font-semibold tracking-wide uppercase shadow-lg border-white/10"
+          className="h-8 px-3 flex items-center gap-1.5 glass rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all pointer-events-auto shrink-0 active:scale-95 disabled:opacity-50 text-xs font-medium shadow-lg border-white/10"
           title="Teleport to a random interesting place"
         >
           {isSurprising ? (
-            <div className="w-4 h-4 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin" />
+            <div className="w-3.5 h-3.5 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin" />
           ) : (
-            <span className="text-base leading-none">✨</span>
+            <span className="text-sm leading-none">✨</span>
           )}
           <span className="hidden sm:inline">Surprise Me</span>
         </button>
 
-        <div className="flex-1 flex items-center gap-2 pointer-events-auto overflow-x-auto no-scrollbar py-1">
+        <div className="flex-1 flex items-center gap-1.5 pointer-events-auto overflow-x-auto no-scrollbar py-1">
           <CategoryFilter
             selected={selectedCategory}
             onChange={setSelectedCategory}
