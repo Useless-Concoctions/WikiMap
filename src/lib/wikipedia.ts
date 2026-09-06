@@ -44,6 +44,15 @@ export async function fetchArticleSummary(title: string): Promise<WikiSummary> {
   return res.json()
 }
 
+/** Fetch a random notable Wikipedia article with coordinates */
+export async function fetchRandomArticle(): Promise<WikiGeoResult> {
+  const res = await fetch('/api/wiki/random')
+  if (!res.ok) {
+    throw new Error(`Failed to fetch random article: ${res.status}`)
+  }
+  return res.json()
+}
+
 interface RawCategoryPage {
   pageid?: number
   length?: number

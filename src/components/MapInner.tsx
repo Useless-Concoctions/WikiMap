@@ -10,6 +10,7 @@ import { useGeolocation } from '@/hooks/useGeolocation'
 import { useWikiArticles } from '@/hooks/useWikiArticles'
 import { useArticleCategories } from '@/hooks/useArticleCategories'
 import { EMOJI_FILTERS, articleMatchesFilter } from '@/lib/emojiFilters'
+import { fetchRandomArticle } from '@/lib/wikipedia'
 import ArticlePanel from './ArticlePanel'
 import CategoryFilter from './CategoryFilter'
 import SearchAutocomplete from './SearchAutocomplete'
@@ -210,6 +211,19 @@ export default function MapInner() {
   const { categoriesByPageId, lengthByPageId, loading: catsLoading, emojiByPageId } = useArticleCategories(articles)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedArticle, setSelectedArticle] = useState<WikiGeoResult | null>(null)
+  const [isSurprising, setIsSurprising] = useState(false)
+
+  const handleSurpriseMe = useCallback(async () => {
+    setIsSurprising(true)
+    try {
+      const randomArticle = await fetchRandomArticle()
+      setSelectedArticle(randomArticle)
+    } catch (err) {
+      console.error('Surprise Me failed:', err)
+    } finally {
+      setIsSurprising(false)
+    }
+  }, [])
 
   const activeEmojiFilter = selectedCategory == null ? null : EMOJI_FILTERS.find((f) => f.id === selectedCategory) ?? null
 
@@ -345,11 +359,26 @@ export default function MapInner() {
         <MapController coords={coords} />
       </MapContainer>
 
-      <div className="absolute top-6 left-6 right-6 z-[1010] flex items-center gap-4 pointer-events-none transition-all duration-500">
+      <div className="absolute top-6 left-6 right-6 z-[1010] flex items-center gap-3 pointer-events-none transition-all duration-500">
         <SearchAutocomplete
           onSelectArticle={setSelectedArticle}
           isBusy={wikiLoading || catsLoading}
         />
+
+        <button
+          type="button"
+          onClick={handleSurpriseMe}
+          disabled={isSurprising}
+          className="h-11 px-4 flex items-center gap-2 glass rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all pointer-events-auto shrink-0 active:scale-95 disabled:opacity-50 text-xs font-semibold tracking-wide uppercase shadow-lg border-white/10"
+          title="Teleport to a random interesting place"
+        >
+          {isSurprising ? (
+            <div className="w-4 h-4 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin" />
+          ) : (
+            <span className="text-base leading-none">✨</span>
+          )}
+          <span className="hidden sm:inline">Surprise Me</span>
+        </button>
 
         <div className="flex-1 flex items-center gap-2 pointer-events-auto overflow-x-auto no-scrollbar py-1">
           <CategoryFilter
