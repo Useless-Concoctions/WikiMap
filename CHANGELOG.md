@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Live Search Autocomplete**: Added a debounced suggestion dropdown with article thumbnails and keyboard navigation that keeps the map stationary while typing until a result is explicitly chosen.
 - **Unified Server API Layer**: Moved Wikipedia queries behind `/api/wiki` route handlers with compliant Wikimedia User-Agent headers, edge caching, and generator-based batching that bundles coordinates, categories, thumbnails, and extracts into a single request.
 
 ### Fixed

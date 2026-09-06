@@ -9,10 +9,10 @@ import { Coords, MapBounds, WikiGeoResult } from '@/types'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { useWikiArticles } from '@/hooks/useWikiArticles'
 import { useArticleCategories } from '@/hooks/useArticleCategories'
-import { searchArticles } from '@/lib/wikipedia'
 import { EMOJI_FILTERS, articleMatchesFilter } from '@/lib/emojiFilters'
 import ArticlePanel from './ArticlePanel'
 import CategoryFilter from './CategoryFilter'
+import SearchAutocomplete from './SearchAutocomplete'
 
 
 const createArticleIcon = (isSelected: boolean, emoji: string = '📍') =>
@@ -210,39 +210,14 @@ export default function MapInner() {
   const { categoriesByPageId, lengthByPageId, loading: catsLoading, emojiByPageId } = useArticleCategories(articles)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedArticle, setSelectedArticle] = useState<WikiGeoResult | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [isSearching, setIsSearching] = useState(false)
-
-  const handleSearchSubmit = async (e?: React.FormEvent) => {
-    e?.preventDefault()
-    if (!searchQuery.trim()) return
-
-    setIsSearching(true)
-    try {
-      const results = await searchArticles(searchQuery)
-      if (results.length > 0) {
-        const bestMatch = results[0]
-        setSelectedArticle(bestMatch)
-        // The map will auto-fly to this article via CenterOnSelected
-      }
-    } catch (err) {
-      console.error('Search failed:', err)
-    } finally {
-      setIsSearching(false)
-    }
-  }
-
-  const filteredBySearch = searchQuery.trim() === ''
-    ? articles
-    : articles.filter(a => a.title.toLowerCase().includes(searchQuery.toLowerCase()))
 
   const activeEmojiFilter = selectedCategory == null ? null : EMOJI_FILTERS.find((f) => f.id === selectedCategory) ?? null
 
   const categoryFiltered =
     activeEmojiFilter == null
-      ? filteredBySearch
-      : filteredBySearch.filter((a) => {
-          const cats = categoriesByPageId.get(a.pageid) ?? []
+      ? articles
+      : articles.filter((a) => {
+          const cats = categoriesByPageId.get(a.pageid) ?? a.categories ?? []
           return articleMatchesFilter(cats, activeEmojiFilter)
         })
   // Prioritize by distance (closest first), then cap by zoom so zoom out = less detail
@@ -371,40 +346,10 @@ export default function MapInner() {
       </MapContainer>
 
       <div className="absolute top-6 left-6 right-6 z-[1010] flex items-center gap-4 pointer-events-none transition-all duration-500">
-        <form 
-          onSubmit={handleSearchSubmit}
-          className="flex items-center glass rounded-full overflow-hidden pointer-events-auto shrink-0 h-11 w-[320px] transition-all duration-300 focus-within:ring-2 focus-within:ring-blue-500/50"
-        >
-          <div className="px-5 h-full flex items-center gap-2 border-r border-white/5 bg-blue-600/20 text-blue-400 shrink-0">
-            {(isSearching || wikiLoading || catsLoading) ? (
-              <div className="w-4 h-4 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin" />
-            ) : (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="opacity-80">
-                <path d="M12.09 4.41l-.11.23-.12-.23c-2.43-4.86-9.15-4.86-11.58 0-.28.56.09 1.25.71 1.25h1.22c.28 0 .54-.15.68-.39.54-1.09 1.56-2.12 3.09-2.12 2.37 0 4.14 2 4.14 4.5 0 .28-.22.5-.5.5h-1c-.28 0-.5.22-.5.5s.22.5.5.5h1c.28 0 .5.22.5.5v11.5c0 .28.22.5.5.5s.5-.22.5-.5V10.5c0-.28.22-.5.5-.5h1c.28 0 .5-.22.5-.5s-.22-.5-.5-.5h-1c-.28 0-.5-.22-.5-.5 0-2.5 1.77-4.5 4.14-4.5 1.53 0 2.55 1.03 3.09 2.12.14.24.4.39.68.39h1.22c.62 0 .99-.69.71-1.25-2.43-4.86-9.15-4.86-11.58 0z" />
-              </svg>
-            )}
-          </div>
-          <div className="flex items-center px-4 flex-1 h-full">
-            <input
-              type="text"
-              placeholder="Search Wikipedia..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-full text-zinc-100 font-medium text-sm bg-transparent border-none focus:ring-0 placeholder:text-zinc-500 outline-none"
-            />
-            {searchQuery && (
-              <button 
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="p-1 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
-              </button>
-            )}
-          </div>
-        </form>
+        <SearchAutocomplete
+          onSelectArticle={setSelectedArticle}
+          isBusy={wikiLoading || catsLoading}
+        />
 
         <div className="flex-1 flex items-center gap-2 pointer-events-auto overflow-x-auto no-scrollbar py-1">
           <CategoryFilter
