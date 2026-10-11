@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 - **Carto Basemap Tiles**: Routed tile requests through `/api/carto-tiles` proxy with API key injection and edge caching to remove the "API Key Required" watermark.
 - **Security**: Updated Next.js and transitive dependencies to clear all known npm vulnerabilities.
 - **Security**: Patched `@humanfs/node` (moderate, GHSA-p498-v437-472g) via `npm audit fix`.
+- **Security**: Updated Next.js, image processing and YAML libraries to patched versions.
 
 ## [0.6.1] - 2026-05-12
 
